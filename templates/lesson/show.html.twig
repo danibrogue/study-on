@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ lesson.title }} / {{ lesson.course.title }} / StudyOn{% endblock %}
+
+{% block actions %}
+    <a href="{{ path('app_lesson_edit', {'id': lesson.id}) }}">Редактировать урок</a>
+    {{ include('lesson/_delete_form.html.twig') }}
+{% endblock %}
+
+{% block body %}
+    <div class="body_block">
+        <h1>{{ lesson.title }}</h1>
+        <a href="{{ path('app_course_show', {'id': lesson.course.id}) }}">{{ lesson.course.title }}</a>
+        <p>{{lesson.contents}}</p>
+    </div>
+{% endblock %}

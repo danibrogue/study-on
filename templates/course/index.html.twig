@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Course index{% endblock %}
+
+{% block body %}
+    <h1>Список курсов</h1>
+    <div class="course_list">
+        {% for course in courses %}
+            <div class="list_node">
+                <a href="{{ path('app_course_show', {'id': course.id}) }}"> {{ course.title }} </a>
+                <p> {{ course.info }} </p>
+            </div>
+        {% else %}
+            <p>Нет доступных курсов</p>
+        {% endfor %}
+    </div>
+
+    <a href="{{ path('app_course_new') }}">Добавить новый курс</a>
+{% endblock %}
