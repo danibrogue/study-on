@@ -2,6 +2,7 @@
 
 namespace App\Form\Transformer;
 
+use App\Entity\Course;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;

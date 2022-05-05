@@ -3,15 +3,17 @@
 {% block title %} {{ course.title }} {% endblock %}
 
 {% block actions %}
+
+{% endblock %}
+
+{% block body %}
     <div class="actions">
         <a href="{{ path('app_course_index') }}">Вернуться к списку курсов</a>
         <a href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать курс</a>
         {{ include('course/_delete_form.html.twig') }}
-        <a href="{{ path('app_course_new_lesson') }}">Добавить урок</a>
+        <a href="{{ path('app_course_add_lesson', {'id': course.id}) }}">Добавить урок</a>
     </div>
-{% endblock %}
 
-{% block body %}
     <div class="body_block">
         <p>{{ course.info }}</p>
 

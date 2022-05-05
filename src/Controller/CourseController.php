@@ -90,11 +90,12 @@ class CourseController extends AbstractController
     }
 
     /**
-     * @Route("/{course}/lessons/add", name="app_course_add_lesson", methods={"GET", "POST"})
+     * @Route("/{id}/lessons/add", name="app_course_add_lesson", methods={"GET", "POST"})
      */
     public function addLesson(Request $request, LessonRepository $lessonRepository, Course $course): Response
     {
         $lesson = new Lesson();
+        $lesson->setCourse($course);
         $form = $this->createForm(LessonType::class, $lesson);
         $form->handleRequest($request);
 

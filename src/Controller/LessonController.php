@@ -16,16 +16,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class LessonController extends AbstractController
 {
     /**
-     * @Route("/", name="app_lesson_index", methods={"GET"})
-     */
-    public function index(LessonRepository $lessonRepository): Response
-    {
-        return $this->render('lesson/index.html.twig', [
-            'lessons' => $lessonRepository->findAll(),
-        ]);
-    }
-
-    /**
      * @Route("/{id}", name="app_lesson_show", methods={"GET"})
      */
     public function show(Lesson $lesson): Response
@@ -40,12 +30,14 @@ class LessonController extends AbstractController
      */
     public function edit(Request $request, Lesson $lesson, LessonRepository $lessonRepository): Response
     {
+        $courseId = $lesson->getCourse()->getId();
+
         $form = $this->createForm(LessonType::class, $lesson);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $lessonRepository->add($lesson);
-            return $this->redirectToRoute('app_lesson_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_lesson_show', ['id' => $lesson->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('lesson/edit.html.twig', [
