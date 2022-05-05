@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/courses")
+ * @Route("/")
  */
 class CourseController extends AbstractController
 {
@@ -29,7 +29,7 @@ class CourseController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="app_course_new", methods={"GET", "POST"})
+     * @Route("/courses/new", name="app_course_new", methods={"GET", "POST"})
      */
     public function new(Request $request, CourseRepository $courseRepository): Response
     {
@@ -49,7 +49,7 @@ class CourseController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="app_course_show", methods={"GET"})
+     * @Route("/courses/{id}", name="app_course_show", methods={"GET"})
      */
     public function show(Course $course): Response
     {
@@ -59,7 +59,7 @@ class CourseController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="app_course_edit", methods={"GET", "POST"})
+     * @Route("/courses/{id}/edit", name="app_course_edit", methods={"GET", "POST"})
      */
     public function edit(Request $request, Course $course, CourseRepository $courseRepository): Response
     {
@@ -78,7 +78,7 @@ class CourseController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="app_course_delete", methods={"POST"})
+     * @Route("/courses/{id}", name="app_course_delete", methods={"POST"})
      */
     public function delete(Request $request, Course $course, CourseRepository $courseRepository): Response
     {
@@ -90,7 +90,7 @@ class CourseController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/lessons/add", name="app_course_add_lesson", methods={"GET", "POST"})
+     * @Route("/courses/{id}/lessons/add", name="app_course_add_lesson", methods={"GET", "POST"})
      */
     public function addLesson(Request $request, LessonRepository $lessonRepository, Course $course): Response
     {
