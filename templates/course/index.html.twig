@@ -1,12 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Course index{% endblock %}
+{% block title %}Список курсов \ StudyOn{% endblock %}
 
 {% block body %}
     <h1>Список курсов</h1>
-    <div class="course_list">
+    <div>
         {% for course in courses %}
-            <div class="list_node">
+            <div>
                 <a href="{{ path('app_course_show', {'id': course.id}) }}"> {{ course.title }} </a>
                 <p> {{ course.info }} </p>
             </div>
