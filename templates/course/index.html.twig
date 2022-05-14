@@ -3,17 +3,21 @@
 {% block title %}Список курсов \ StudyOn{% endblock %}
 
 {% block body %}
-    <h1>Список курсов</h1>
-    <div>
-        {% for course in courses %}
-            <div>
-                <a href="{{ path('app_course_show', {'id': course.id}) }}"> {{ course.title }} </a>
-                <p> {{ course.info }} </p>
-            </div>
-        {% else %}
-            <p>Нет доступных курсов</p>
-        {% endfor %}
-    </div>
+    <div class="container p-3">
+        <h1>Список курсов</h1>
+        <div class="row row-cols-2 mt-4">
+            {% for course in courses %}
+                <div class="col">
+                    <div class="p-3 h-100 border border-secondary rounded bg-light">
+                        <a href="{{ path('app_course_show', {'id': course.id}) }}"> {{ course.title }} </a>
+                        <p> {{ course.info }} </p>
+                    </div>
+                </div>
+            {% else %}
+                <p>Нет доступных курсов</p>
+            {% endfor %}
+        </div>
 
-    <a href="{{ path('app_course_new') }}">Добавить новый курс</a>
+        <a href="{{ path('app_course_new') }}" class="btn btn-primary btn-lg mt-4">Добавить новый курс</a>
+    </div>
 {% endblock %}
