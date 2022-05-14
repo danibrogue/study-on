@@ -7,22 +7,43 @@
 {% endblock %}
 
 {% block body %}
-    <div class="actions">
-        <a href="{{ path('app_course_index') }}">Вернуться к списку курсов</a>
-        <a href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать курс</a>
-        {{ include('course/_delete_form.html.twig') }}
-        <a href="{{ path('app_course_add_lesson', {'id': course.id}) }}">Добавить урок</a>
-    </div>
+    <div class="d-flex flex-column mx-3">
+        <nav class="navbar navbar-expand-lg bg-light">
+            <span class="navbar-brand h3 mx-3">StudyOn</span>
+        </nav>
 
-    <div class="body_block">
-        <p>{{ course.info }}</p>
+        <div class="body_block">
+            <h4>{{ course.title }}</h4>
 
-        <ol class="lessons_list">
-            {% for lesson in course.Includes %}
-                <li class="list_node">
-                    <a href="{{ path('app_lesson_show', {'id': lesson.id}) }}">{{lesson.title}}</a>
+            <p>{{ course.info }}</p>
+
+            <h4>Уроки</h4>
+
+            <ol class="lessons_list">
+                {% for lesson in course.Includes %}
+                    <li class="list_node">
+                        <a href="{{ path('app_lesson_show', {'id': lesson.id}) }}">{{lesson.title}}</a>
+                    </li>
+                {% endfor %}
+            </ol>
+        </div>
+
+        <nav class="navbar navbar-expand-lg">
+            <ul class="navbar-nav">
+                <li class="nav-item active mx-1">
+                    <a class="btn btn-outline-secondary" role="button" href="{{ path('app_course_index') }}">Вернуться к списку курсов</a>
                 </li>
-            {% endfor %}
-        </ol>
+                <li class="nav-item active mx-1">
+                    <a class="btn btn-outline-secondary" role="button" href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать курс</a>
+                </li>
+                <li class="nav-item active mx-1">
+                    {{ include('course/_delete_form.html.twig') }}
+                </li>
+                <li class="nav-item active mx-1">
+                    <a class="btn btn-outline-secondary" role="button" href="{{ path('app_course_add_lesson', {'id': course.id}) }}">Добавить урок</a>
+                </li>
+            </ul>
+        </nav>
+
     </div>
 {% endblock %}
