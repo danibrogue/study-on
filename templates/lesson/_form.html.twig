@@ -1,4 +1,13 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+    <div class="d-flex flex-column">
+        {{ form_label(form.title) }}
+        {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+
+        {{ form_label(form.contents) }}
+        {{ form_widget(form.contents, {'attr': {'class': 'form-control'}}) }}
+
+        {{ form_label(form.number) }}
+        {{ form_widget(form.number, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <button class="btn btn-outline-primary mt-3">{{ button_label|default('Сохранить') }}</button>
 {{ form_end(form) }}
