@@ -3,9 +3,14 @@
 {% block title %}Создание нового урока для курса "{{course.title}}"{% endblock %}
 
 {% block body %}
-    <div class="body_block">
-        <h1>Создание нового урока для курса "{{course.title}}"</h1>
-        {{ include('lesson/_form.html.twig') }}
-        <a href="{{ path('app_course_show', {'id': course.id}) }}">Вернуться</a>
+    <div class="d-flex flex-column mx-3">
+        <nav class="navbar navbar-expand-lg bg-light">
+            <span class="navbar-brand h3 mx-3">StudyOn</span>
+        </nav>
+        <h3>Новый урок</h3>
+        <a href="{{ path('app_course_show', {'id': lesson.course.id}) }}">{{ course.title }}</a>
+        <div class="d-flex flex-column mt-3">
+            {{ include('lesson/_form.html.twig') }}
+        </div>
     </div>
 {% endblock %}
