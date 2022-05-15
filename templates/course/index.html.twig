@@ -8,9 +8,9 @@
             <span class="navbar-brand h3 mx-3">StudyOn</span>
         </nav>
         <h4>Список курсов</h4>
-        <div class="row row-cols-2 mt-2">
+        <div class="row row-cols-2">
             {% for course in courses %}
-                <div class="col">
+                <div class="col my-3">
                     <div class="p-3 h-100 border border-secondary rounded bg-light">
                         <a href="{{ path('app_course_show', {'id': course.id}) }}"> {{ course.title }} </a>
                         <p> {{ course.info }} </p>
