@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <nav class="navbar navbar-expand-lg bg-light mb-2">
+        <span class="navbar-brand h3 mx-3">StudyOn</span>
+    </nav>
+    <div class="d-flex flex-column mx-3">
+        <div class="error-template">
+            <h1>Что-то пошло не так...</h1>
+            <div class="error-details">
+                <h2>Error {{ status_code }}: {{ status_text }}</h2>
+            </div>
+            <div class="error-actions">
+                <a class="btn btn-outline-secondary" role="button" href="{{ path('app_course_index') }}">Вернуться на главную</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
