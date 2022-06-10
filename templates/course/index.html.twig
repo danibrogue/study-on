@@ -10,9 +10,9 @@
         <h3>Список курсов</h3>
         <div class="row row-cols-2">
             {% for course in courses %}
-                <div class="col my-3">
+                <div class="col my-3 course_list_node">
                     <div class="p-3 h-100 border border-secondary rounded bg-light">
-                        <a href="{{ path('app_course_show', {'id': course.id}) }}"> {{ course.title }} </a>
+                        <a href="{{ path('app_course_show', {'id': course.id}) }}" class="course-link"> {{ course.title }} </a>
                         <p> {{ course.info }} </p>
                     </div>
                 </div>
@@ -21,5 +21,5 @@
             {% endfor %}
         </div>
     </div>
-    <a href="{{ path('app_course_new') }}" class="btn btn-outline-primary m-3">Добавить новый курс</a>
+    <a href="{{ path('app_course_new') }}" class="btn btn-outline-primary m-3 create_course">Добавить новый курс</a>
 {% endblock %}

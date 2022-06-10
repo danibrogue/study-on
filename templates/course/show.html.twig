@@ -13,9 +13,9 @@
         </nav>
 
         <div class="body_block">
-            <h3>{{ course.title }}</h3>
+            <h3 class="course-title">{{ course.title }}</h3>
 
-            <p>{{ course.info }}</p>
+            <p class="course-info">{{ course.info }}</p>
 
             <h4>Уроки</h4>
 
@@ -34,7 +34,7 @@
                     <a class="btn btn-outline-secondary" role="button" href="{{ path('app_course_index') }}">Вернуться к списку курсов</a>
                 </li>
                 <li class="nav-item active mx-1">
-                    <a class="btn btn-outline-secondary" role="button" href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать курс</a>
+                    <a class="btn btn-outline-secondary course-edit" role="button" href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать курс</a>
                 </li>
                 <li class="nav-item active mx-1">
                     {{ include('course/_delete_form.html.twig') }}
