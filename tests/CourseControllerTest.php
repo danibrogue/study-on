@@ -123,6 +123,7 @@ class CourseControllerTest extends AbstractTest
 
     public function testCreateCourse(): void
     {
+        $coursesCountBefore = self::getEntityManager()->getRepository(Course::class)->count([]);
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -141,8 +142,8 @@ class CourseControllerTest extends AbstractTest
         self::assertTrue($client->getResponse()->isRedirect('/'));
         $crawler = $client->followRedirect();
 
-        $actualCoursesCount = count(self::getEntityManager()->getRepository(Course::class)->FindAll());
-        self::assertCount($actualCoursesCount, $crawler->filter('.course_list_node'));
+        $coursesCountAfter = self::getEntityManager()->getRepository(Course::class)->count([]);
+        self::assertEquals($coursesCountBefore + 1, $coursesCountAfter);
     }
 
     public function testCreateCourseWithBlank(): void
@@ -239,6 +240,7 @@ class CourseControllerTest extends AbstractTest
 
     public function testCreateNonUnique(): void
     {
+        $countCoursesBefore = self::getEntityManager()->getRepository(Course::class)->count([]);
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -258,7 +260,8 @@ class CourseControllerTest extends AbstractTest
         ]);
         $client->submit($form);
 
-        self::assertFalse($client->getResponse()->isRedirect('/'));
+        $countCoursesAfter = self::getEntityManager()->getRepository(Course::class)->count([]);
+        self::assertEquals($countCoursesBefore, $countCoursesAfter);
     }
 
     public function testDeleteCourse(): void

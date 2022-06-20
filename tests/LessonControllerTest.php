@@ -36,6 +36,7 @@ class LessonControllerTest extends AbstractTest
 
     public function testCreateLesson(): void
     {
+
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -57,13 +58,15 @@ class LessonControllerTest extends AbstractTest
 
         $course = self::getEntityManager()->getRepository(Course::class)
             ->FindOneBy(['id' => $form['lesson[course]']->getValue()]);
+        $countLessonsBefore = count($course->getIncludes());
 
         $client->submit($form);
         self::assertTrue($client->getResponse()->isRedirect('/courses/' . $course->getId()));
         $crawler = $client->followRedirect();
-
-        $actualLessonsCount = count($course->getIncludes());
-        self::assertCount($actualLessonsCount, $crawler->filter('.list_node'));
+        $course = self::getEntityManager()->getRepository(Course::class)
+            ->FindOneBy(['id' => $form['lesson[course]']->getValue()]);
+        $countLessonsAfter = count($course->getIncludes());
+        self::assertEquals($countLessonsBefore + 1, $countLessonsAfter);
     }
 
     public function testCreateLessonWithBlanks(): void
@@ -159,33 +162,6 @@ class LessonControllerTest extends AbstractTest
         self::assertFalse($client->getResponse()->isRedirect('/courses/' . $course->getId()));
     }
 
-    public function testCreateNonUnique(): void
-    {
-        $client = self::getClient();
-        $crawler = $client->request('GET', '/');
-        $this->assertResponseOk();
-
-        $link = $crawler->filter('.course-link')->first()->link();
-        $crawler = $client->click($link);
-        $this->assertResponseOk();
-
-        $link = $crawler->filter('.add-lesson')->link();
-        $crawler = $client->click($link);
-        $this->assertResponseOk();
-
-        $submitButton = $crawler->selectButton('Сохранить');
-        $form = $submitButton->form([
-            'lesson[title]' => 'Общая информация о курсе',
-            'lesson[contents]' => 'В этом вводном уроке мы расскажем вам о том, что вас ждет, ".
-            "и дадим рекомендации по прохождению курса.',
-            'lesson[number]' => 1,
-        ]);
-
-        $course = self::getEntityManager()->getRepository(Course::class)
-            ->FindOneBy(['id' => $form['lesson[course]']->getValue()]);
-
-        self::assertFalse($client->getResponse()->isRedirect('/courses/' . $course->getId()));
-    }
 
     public function testDeleteLesson(): void
     {
