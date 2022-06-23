@@ -2,6 +2,7 @@
 
 namespace App\Tests;
 
+use App\Form\CourseType;
 use Symfony\Component\Panther\PantherTestCase;
 use App\Tests\AbstractTest;
 use App\DataFixtures\CourseFixtures;
@@ -156,16 +157,16 @@ class CourseControllerTest extends AbstractTest
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
-
         $submitButton = $crawler->selectButton('Сохранить');
         $form = $submitButton->form([
             'course[code]' => '',
             'course[title]' => 'Тестовый курс',
             'course[info]' => 'Это тестовый курс',
         ]);
-        $client->submit($form);
 
-        self::assertFalse($client->getResponse()->isRedirect('/'));
+        $crawler = $client->submit($form);
+        $error = $crawler->filter('li')->first();
+        self::assertEquals('This value should not be blank.', $error->text());
 
         $submitButton = $crawler->selectButton('Сохранить');
         $form = $submitButton->form([
@@ -173,9 +174,10 @@ class CourseControllerTest extends AbstractTest
             'course[title]' => '',
             'course[info]' => 'Это тестовый курс',
         ]);
-        $client->submit($form);
 
-        self::assertFalse($client->getResponse()->isRedirect('/'));
+        $crawler = $client->submit($form);
+        $error = $crawler->filter('li')->first();
+        self::assertEquals('This value should not be blank.', $error->text());
     }
 
     public function testCreateCourseWithInvalidLength(): void
@@ -198,9 +200,9 @@ class CourseControllerTest extends AbstractTest
             'course[title]' => 'Тестовый курс',
             'course[info]' => 'Это тестовый курс',
         ]);
-        $client->submit($form);
-
-        self::assertFalse($client->getResponse()->isRedirect('/'));
+        $crawler = $client->submit($form);
+        $error = $crawler->filter('li')->first();
+        self::assertEquals('This value is too long. It should have 255 characters or less.', $error->text());
 
         $submitButton = $crawler->selectButton('Сохранить');
         $form = $submitButton->form([
@@ -211,9 +213,9 @@ class CourseControllerTest extends AbstractTest
             qqqqqqqqqq',
             'course[info]' => 'Это тестовый курс',
         ]);
-        $client->submit($form);
-
-        self::assertFalse($client->getResponse()->isRedirect('/'));
+        $crawler = $client->submit($form);
+        $error = $crawler->filter('li')->first();
+        self::assertEquals('This value is too long. It should have 255 characters or less.', $error->text());
 
         $submitButton = $crawler->selectButton('Сохранить');
         $form = $submitButton->form([
@@ -233,9 +235,10 @@ class CourseControllerTest extends AbstractTest
             qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
             qqqqqqqqqq',
         ]);
-        $client->submit($form);
 
-        self::assertFalse($client->getResponse()->isRedirect('/'));
+        $crawler = $client->submit($form);
+        $error = $crawler->filter('li')->first();
+        self::assertEquals('This value is too long. It should have 1000 characters or less.', $error->text());
     }
 
     public function testCreateNonUnique(): void
@@ -270,17 +273,16 @@ class CourseControllerTest extends AbstractTest
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
 
+        $countCoursesBefore = self::getEntityManager()->getRepository(Course::class)->count([]);
+
         $link = $crawler->filter('.course-link')->first()->link();
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
         $client->submitForm('course-delete');
-        self::assertTrue($client->getResponse()->isRedirect('/'));
-        $crawler = $client->followRedirect();
-        $this->assertResponseOk();
+        $countCoursesAfter = self::getEntityManager()->getRepository(Course::class)->count([]);
 
-        $actualCoursesCount = count(self::getEntityManager()->getRepository(Course::class)->FindAll());
-        self::assertCount($actualCoursesCount, $crawler->filter('.course_list_node'));
+        self::assertEquals($countCoursesBefore - 1, $countCoursesAfter);
     }
 
     public function testEditCourse(): void
@@ -299,7 +301,7 @@ class CourseControllerTest extends AbstractTest
 
         $submitButton = $crawler->selectButton('Сохранить');
         $form = $submitButton->form();
-        $course = self::getEntityManager()
+        $courseBefore = self::getEntityManager()
             ->getRepository(Course::class)
             ->findOneBy(['code' => $form['course[code]']->getValue()]);
 
@@ -312,13 +314,12 @@ class CourseControllerTest extends AbstractTest
         $crawler = $client->followRedirect();
         $this->assertResponseOk();
 
-        $crawler = $client->request('GET', '/courses/' . $course->getId());
-        $this->assertResponseOk();
+        $courseAfter = self::getEntityManager()
+            ->getRepository(Course::class)
+            ->findOneBy(['id' => $courseBefore->getId()]);
 
-        $courseTitle = $crawler->filter('.course-title')->text();
-        self::assertEquals('Измененный курс', $courseTitle);
-
-        $courseInfo = $crawler->filter(".course-info")->text();
-        self::assertEquals('Этот курс изменен', $courseInfo);
+        self::assertEquals('EDITED', $courseAfter->getCode());
+        self::assertEquals('Измененный курс', $courseAfter->getTitle());
+        self::assertEquals('Этот курс изменен', $courseAfter->getInfo());
     }
 }

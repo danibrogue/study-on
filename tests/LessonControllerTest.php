@@ -90,22 +90,10 @@ class LessonControllerTest extends AbstractTest
             'lesson[number]' => 1000 - 7,
         ]);
 
-        $course = self::getEntityManager()->getRepository(Course::class)
-            ->FindOneBy(['id' => $form['lesson[course]']->getValue()]);
+        $crawler = $client->submit($form);
+        $error = $crawler->filter('li')->first();
+        self::assertEquals('This value should not be blank.', $error->text());
 
-        self::assertFalse($client->getResponse()->isRedirect('/courses/' . $course->getId()));
-
-        $submitButton = $crawler->selectButton('Сохранить');
-        $form = $submitButton->form([
-            'lesson[title]' => 'Тестовый урок',
-            'lesson[contents]' => '',
-            'lesson[number]' => 1000 - 7,
-        ]);
-
-        $course = self::getEntityManager()->getRepository(Course::class)
-            ->FindOneBy(['id' => $form['lesson[course]']->getValue()]);
-
-        self::assertFalse($client->getResponse()->isRedirect('/courses/' . $course->getId()));
 
         $submitButton = $crawler->selectButton('Сохранить');
         $form = $submitButton->form([
@@ -114,10 +102,9 @@ class LessonControllerTest extends AbstractTest
             'lesson[number]' => '',
         ]);
 
-        $course = self::getEntityManager()->getRepository(Course::class)
-            ->FindOneBy(['id' => $form['lesson[course]']->getValue()]);
-
-        self::assertFalse($client->getResponse()->isRedirect('/courses/' . $course->getId()));
+        $crawler = $client->submit($form);
+        $error = $crawler->filter('li')->first();
+        self::assertEquals('This value should not be blank.', $error->text());
     }
 
     public function testCreateLessonWithInvalids(): void
@@ -143,11 +130,9 @@ class LessonControllerTest extends AbstractTest
             'lesson[contents]' => 'Это тестовый урок',
             'lesson[number]' => 1000 - 7,
         ]);
-
-        $course = self::getEntityManager()->getRepository(Course::class)
-            ->FindOneBy(['id' => $form['lesson[course]']->getValue()]);
-
-        self::assertFalse($client->getResponse()->isRedirect('/courses/' . $course->getId()));
+        $crawler = $client->submit($form);
+        $error = $crawler->filter('li')->first();
+        self::assertEquals('This value is too long. It should have 255 characters or less.', $error->text());
 
         $submitButton = $crawler->selectButton('Сохранить');
         $form = $submitButton->form([
@@ -155,11 +140,9 @@ class LessonControllerTest extends AbstractTest
             'lesson[contents]' => 'Это тестовый урок',
             'lesson[number]' => -1,
         ]);
-
-        $course = self::getEntityManager()->getRepository(Course::class)
-            ->FindOneBy(['id' => $form['lesson[course]']->getValue()]);
-
-        self::assertFalse($client->getResponse()->isRedirect('/courses/' . $course->getId()));
+        $crawler = $client->submit($form);
+        $error = $crawler->filter('li')->first();
+        self::assertEquals('This value should be between "1" and "10000".', $error->text());
     }
 
 
@@ -185,15 +168,14 @@ class LessonControllerTest extends AbstractTest
         $form = $button->form();
         $course = self::getEntityManager()->getRepository(Course::class)
             ->FindOneBy(['id' => $form['lesson[course]']->getValue()]);
+        $lessonsCountBefore = count($course->getIncludes());
 
         $client->submitForm('lesson-delete');
 
-        self::assertTrue($client->getResponse()->isRedirect('/courses/' . $course->getId()));
-        $crawler = $client->followRedirect();
-        $this->assertResponseOk();
-
-        $actualLessonsCount = count($course->getIncludes());
-        self::assertCount($actualLessonsCount, $crawler->filter('.list_node'));
+        $course = self::getEntityManager()->getRepository(Course::class)
+            ->FindOneBy(['id' => $form['lesson[course]']->getValue()]);
+        $lessonsCountAfter = count($course->getIncludes());
+        self::assertEquals($lessonsCountBefore - 1, $lessonsCountAfter);
     }
 
     public function testEditLesson(): void
@@ -216,26 +198,25 @@ class LessonControllerTest extends AbstractTest
 
         $submitButton = $crawler->selectButton('Сохранить');
         $form = $submitButton->form();
-        $course = self::getEntityManager()->getRepository(Course::class)
-            ->FindOneBy(['id' => $form['lesson[course]']->getValue()]);
+        $lessonBefore = self::getEntityManager()->getRepository(Lesson::class)
+            ->FindOneBy(['title' => $form['lesson[title]']->getValue()]);
 
         $form['lesson[title]'] = 'Измененный урок';
         $form['lesson[contents]'] = 'Это измененный урок';
         $form['lesson[number]'] = 1000 - 7;
         $client->submit($form);
 
-        $lesson = self::getEntityManager()->getRepository(Lesson::class)
-            ->FindOneBy(['title' => $form['lesson[title]']->getValue()]);
 
         self::assertTrue($client->getResponse()->isRedirect());
         $crawler = $client->followRedirect();
         $this->assertResponseOk();
 
-        $lessonTitle = $crawler->filter('.lesson-title')->text();
-        self::assertEquals('Измененный урок', $lessonTitle);
+        $lessonAfter = self::getEntityManager()->getRepository(Lesson::class)
+            ->FindOneBy(['id' => $lessonBefore->getId()]);
 
-        $lessonContents = $crawler->filter(".lesson-contents")->text();
-        self::assertEquals('Это измененный урок', $lessonContents);
+        self::assertEquals('Измененный урок', $lessonAfter->getTitle());
+        self::assertEquals('Это измененный урок', $lessonAfter->getContents());
+        self::assertEquals(1000 - 7, $lessonAfter->getNumber());
     }
 
     public function testDeleteOrphanedLessons(): void
@@ -248,16 +229,17 @@ class LessonControllerTest extends AbstractTest
         $crawler = $client->click($link);
         $this->assertResponseOk();
 
-        $orphanedLessons = $crawler->filter('.lesson-link')->link();
+        $course = self::getEntityManager()->getRepository(Course::class)
+            ->FindOneBy(['title' => $crawler->filter('.course-title')->first()->text()]);
+
 
         $client->submitForm('course-delete');
         self::assertTrue($client->getResponse()->isRedirect('/'));
         $crawler = $client->followRedirect();
         $this->assertResponseOk();
 
-        foreach ($orphanedLessons as $orphanedLesson) {
-            $client->request('GET', $orphanedLesson);
-            $this->assertResponseNotFound();
-        }
+        $orphanedLessons = self::getEntityManager()->getRepository(Lesson::class)
+            ->FindBy(['course' => $course]);
+        self::assertEmpty($orphanedLessons);
     }
 }

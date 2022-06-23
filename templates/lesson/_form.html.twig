@@ -2,12 +2,15 @@
     <div class="d-flex flex-column">
         {{ form_label(form.title) }}
         {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.title) }}
 
         {{ form_label(form.contents) }}
         {{ form_widget(form.contents, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.contents) }}
 
         {{ form_label(form.number) }}
         {{ form_widget(form.number, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.number) }}
     </div>
     <button class="btn btn-outline-primary mt-3">{{ button_label|default('Сохранить') }}</button>
 {{ form_end(form) }}

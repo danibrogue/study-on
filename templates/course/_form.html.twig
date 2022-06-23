@@ -3,12 +3,15 @@
 
         {{ form_label(form.code) }}
         {{ form_widget(form.code, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.code) }}
 
         {{ form_label(form.title) }}
         {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.title) }}
 
         {{ form_label(form.info) }}
         {{ form_widget(form.info, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.info) }}
     </div>
     <button class="btn btn-outline-primary mt-3">{{ button_label|default('Сохранить') }}</button>
 {{ form_end(form) }}

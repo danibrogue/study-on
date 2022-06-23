@@ -18,30 +18,15 @@ class CourseType extends AbstractType
         $builder
             ->add('code', TextType::class, [
                 'label' => 'Код курса',
-                'constraints' => [
-                    new NotBlank(),
-                    new Length([
-                        'max' => 255,
-                    ]),
-                ],
+                'required' => false,
             ])
             ->add('title', TextType::class, [
                 'label' => 'Название',
-                'constraints' => [
-                    new NotBlank(),
-                    new Length([
-                        'max' => 255,
-                    ]),
-                ],
+                'required' => false,
             ])
             ->add('info', TextareaType::class, [
                 'label' => 'Описание',
                 'required' => false,
-                'constraints' => [
-                    new Length([
-                        'max' => 1000,
-                    ]),
-                ],
             ])
         ;
     }

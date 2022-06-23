@@ -20,6 +20,8 @@ class Lesson
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Length(max = 255)
+     * @Assert\NotBlank()
      */
     private $title;
 
@@ -30,7 +32,8 @@ class Lesson
 
     /**
      * @ORM\Column(type="integer", nullable=true)
-     * @Assert\Range(min="0", max="10000", notInRangeMessage="Amount must not be more than {{ max }}")
+     * @Assert\Range(min="1", max="10000")
+     * @Assert\NotBlank()
      */
     private $number;
 
@@ -50,7 +53,7 @@ class Lesson
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(?string $title): self
     {
         $this->title = $title;
 

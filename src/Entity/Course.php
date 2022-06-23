@@ -24,16 +24,21 @@ class Course
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\Length(max = 255)
+     * @Assert\NotBlank()
      */
     private $code;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Length(max = 255)
+     * @Assert\NotBlank()
      */
     private $title;
 
     /**
      * @ORM\Column(type="string", length=1000, nullable=true)
+     * @Assert\Length(max = 1000)
      */
     private $info;
 
@@ -58,7 +63,7 @@ class Course
         return $this->code;
     }
 
-    public function setCode(string $code): self
+    public function setCode(?string $code): self
     {
         $this->code = $code;
 
@@ -70,7 +75,7 @@ class Course
         return $this->title;
     }
 
-    public function setTitle(string $title): self
+    public function setTitle(?string $title): self
     {
         $this->title = $title;
 

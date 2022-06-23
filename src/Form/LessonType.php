@@ -29,25 +29,15 @@ class LessonType extends AbstractType
         $builder
             ->add('title', TextType::class, [
                 'label' => 'Название',
-                'constraints' => [
-                    new NotBlank(),
-                    new Length([
-                        'max' => 255,
-                    ]),
-                ],
+                'required' => false,
             ])
             ->add('contents', TextareaType::class, [
-                'label' => 'Контент'
+                'label' => 'Контент',
+                'required' => false,
             ])
             ->add('number', NumberType::class, [
                 'label' => 'Порядковый номер',
-                'constraints' => [
-                    new NotBlank(),
-                    new Range([
-                        'min' => 1,
-                        'max' => 10000,
-                    ])
-                ],
+                'required' => false,
             ])
             ->add('course', HiddenType::class)
         ;
