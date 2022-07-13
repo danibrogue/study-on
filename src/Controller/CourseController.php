@@ -8,6 +8,7 @@ use App\Form\CourseType;
 use App\Form\LessonType;
 use App\Repository\CourseRepository;
 use App\Repository\LessonRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,6 +31,7 @@ class CourseController extends AbstractController
 
     /**
      * @Route("/courses/new", name="app_course_new", methods={"GET", "POST"})
+     * @IsGranted("ROLE_SUPER_ADMIN", statusCode=403 , message="Нет доступа!")
      */
     public function new(Request $request, CourseRepository $courseRepository): Response
     {
@@ -60,6 +62,7 @@ class CourseController extends AbstractController
 
     /**
      * @Route("/courses/{id}/edit", name="app_course_edit", methods={"GET", "POST"})
+     * @IsGranted("ROLE_SUPER_ADMIN", statusCode=403 , message="Нет доступа!")
      */
     public function edit(Request $request, Course $course, CourseRepository $courseRepository): Response
     {
@@ -79,6 +82,7 @@ class CourseController extends AbstractController
 
     /**
      * @Route("/courses/{id}", name="app_course_delete", methods={"POST"})
+     * @IsGranted("ROLE_SUPER_ADMIN", statusCode=403 , message="Нет доступа!")
      */
     public function delete(Request $request, Course $course, CourseRepository $courseRepository): Response
     {
@@ -91,6 +95,7 @@ class CourseController extends AbstractController
 
     /**
      * @Route("/courses/{id}/lessons/add", name="app_course_add_lesson", methods={"GET", "POST"})
+     * @IsGranted("ROLE_SUPER_ADMIN", statusCode=403 , message="Нет доступа!")
      */
     public function addLesson(Request $request, LessonRepository $lessonRepository, Course $course): Response
     {

@@ -8,9 +8,6 @@
 
 {% block body %}
     <div class="d-flex flex-column mx-3">
-        <nav class="navbar navbar-expand-lg bg-light">
-            <span class="navbar-brand h3 mx-3">StudyOn</span>
-        </nav>
 
         <div class="body_block">
             <h3 class="course-title">{{ course.title }}</h3>
@@ -33,15 +30,17 @@
                 <li class="nav-item active mx-1">
                     <a class="btn btn-outline-secondary" role="button" href="{{ path('app_course_index') }}">Вернуться к списку курсов</a>
                 </li>
-                <li class="nav-item active mx-1">
-                    <a class="btn btn-outline-secondary course-edit" role="button" href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать курс</a>
-                </li>
-                <li class="nav-item active mx-1">
-                    {{ include('course/_delete_form.html.twig') }}
-                </li>
-                <li class="nav-item active mx-1">
-                    <a class="btn btn-outline-secondary add-lesson" role="button" href="{{ path('app_course_add_lesson', {'id': course.id}) }}">Добавить урок</a>
-                </li>
+                {% if is_granted("ROLE_SUPER_ADMIN") %}
+                    <li class="nav-item active mx-1">
+                        <a class="btn btn-outline-secondary course-edit" role="button" href="{{ path('app_course_edit', {'id': course.id}) }}">Редактировать курс</a>
+                    </li>
+                    <li class="nav-item active mx-1">
+                        {{ include('course/_delete_form.html.twig') }}
+                    </li>
+                    <li class="nav-item active mx-1">
+                        <a class="btn btn-outline-secondary add-lesson" role="button" href="{{ path('app_course_add_lesson', {'id': course.id}) }}">Добавить урок</a>
+                    </li>
+                {% endif %}
             </ul>
         </nav>
 

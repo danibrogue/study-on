@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Профиль {% endblock %}
+
+{% block body %}
+    <div class="d-flex flex-column mx-3">
+
+        <h1>Профиль</h1>
+        <div>
+            <p>Email: {{ userDTO.username }}</p>
+            {% if is_granted('ROLE_SUPER_ADMIN') %}
+                <p>Роль:
+                    Администратор
+                </p>
+            {% else %}
+                <p>Роль:
+                    Пользователь
+                </p>
+            {% endif %}
+            <p>Баланс: {{ userDTO.balance }}</p>
+            <a class="btn btn-outline-secondary" role="button" href="{{ path('app_course_index') }}">Главная</a>
+        </div>
+    </div>
+{% endblock %}

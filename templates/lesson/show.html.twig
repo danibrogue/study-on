@@ -4,26 +4,24 @@
 
 {% block body %}
     <div class="d-flex flex-column mx-3">
-        <nav class="navbar navbar-expand-lg bg-light">
-            <span class="navbar-brand h3 mx-3">StudyOn</span>
-        </nav>
-
         <h3 class="lesson-title">{{ lesson.title }}</h3>
         <a href="{{ path('app_course_show', {'id': lesson.course.id}) }}">{{ lesson.course.title }}</a>
 
         <nav class="navbar navbar-expand-lg">
             <ul class="navbar-nav">
+                {% if is_granted("ROLE_SUPER_ADMIN") %}
                 <li class="nav-item active mx-1">
                     <a class="btn btn-outline-secondary lesson-edit" role="button" href="{{ path('app_lesson_edit', {'id': lesson.id}) }}">Редактировать урок</a>
                 </li>
                 <li class="nav-item active mx-1">
                     {{ include('lesson/_delete_form.html.twig') }}
                 </li>
+                {% endif %}
             </ul>
         </nav>
 
         <div class="d-flex">
-            <p class="card-text p-2 lesson-contents">{{lesson.contents}}</p>
+            <p class="card-text lesson-contents">{{lesson.contents}}</p>
         </div>
     </div>
 {% endblock %}
