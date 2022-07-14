@@ -3,17 +3,40 @@
 namespace App\Tests;
 
 use App\Form\CourseType;
-use Symfony\Component\Panther\PantherTestCase;
 use App\Tests\AbstractTest;
+use App\Tests\Authorization\Auth;
+use JMS\Serializer\SerializerInterface;
+use Symfony\Component\Panther\PantherTestCase;
 use App\DataFixtures\CourseFixtures;
 use App\Entity\Course;
 use App\Entity\Lesson;
 
 class CourseControllerTest extends AbstractTest
 {
+    /** @var SerializerInterface */
+    private $serializer;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->serializer = self::$container->get(SerializerInterface::class);
+    }
+
     protected function getFixtures(): array
     {
         return [CourseFixtures::class];
+    }
+
+    private function adminUser()
+    {
+        $auth = new Auth();
+        $auth->setSerializer($this->serializer);
+        $data = [
+            'username' => 'admin@test.local',
+            'password' => '12345678'
+        ];
+        $requestData = $this->serializer->serialize($data, 'json');
+        return $auth->testAuth($requestData);
     }
 
     public function urlSuccessProvider()
@@ -27,6 +50,7 @@ class CourseControllerTest extends AbstractTest
      */
     public function testUrlSuccess($url): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $client->request('GET', $url);
         $this->assertResponseOk();
@@ -65,6 +89,7 @@ class CourseControllerTest extends AbstractTest
 
     public function testResponsePages(): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $courseRepository = self::getEntityManager()->getRepository(Course::class);
         $courses = $courseRepository->FindAll();
@@ -90,6 +115,35 @@ class CourseControllerTest extends AbstractTest
 
         $client->request('POST', '/courses/new');
         $this->assertResponseOk();
+    }
+
+    public function testHiddenPages(): void
+    {
+        $client = self::getClient();
+        $courseRepository = self::getEntityManager()->getRepository(Course::class);
+        $courses = $courseRepository->FindAll();
+        foreach ($courses as $course) {
+            $client->request('GET', '/courses/' . $course->getId());
+            $this->assertResponseOk();
+
+            $client->request('GET', '/courses/' . $course->getId() . '/edit');
+            $this->assertResponseCode(403);
+
+            $client->request('GET', '/courses/' . $course->getId() . '/lessons/add');
+            $this->assertResponseCode(403);
+
+            $client->request('POST', '/courses/' . $course->getId() . '/edit');
+            $this->assertResponseCode(403);
+
+            $client->request('POST', '/courses/' . $course->getId() . '/lessons/add');
+            $this->assertResponseCode(403);
+        }
+
+        $client->request('GET', '/courses/new');
+        $this->assertResponseCode(403);
+
+        $client->request('POST', '/courses/new');
+        $this->assertResponseCode(403);
     }
 
     public function testCourseLessonsCount(): void
@@ -124,8 +178,10 @@ class CourseControllerTest extends AbstractTest
 
     public function testCreateCourse(): void
     {
-        $coursesCountBefore = self::getEntityManager()->getRepository(Course::class)->count([]);
+        $crawler = $this->adminUser();
         $client = self::getClient();
+        $coursesCountBefore = self::getEntityManager()->getRepository(Course::class)->count([]);
+//        $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
 
@@ -149,6 +205,7 @@ class CourseControllerTest extends AbstractTest
 
     public function testCreateCourseWithBlank(): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -182,6 +239,7 @@ class CourseControllerTest extends AbstractTest
 
     public function testCreateCourseWithInvalidLength(): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -243,6 +301,7 @@ class CourseControllerTest extends AbstractTest
 
     public function testCreateNonUnique(): void
     {
+        $crawler = $this->adminUser();
         $countCoursesBefore = self::getEntityManager()->getRepository(Course::class)->count([]);
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
@@ -269,6 +328,7 @@ class CourseControllerTest extends AbstractTest
 
     public function testDeleteCourse(): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -287,6 +347,7 @@ class CourseControllerTest extends AbstractTest
 
     public function testEditCourse(): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -322,4 +383,5 @@ class CourseControllerTest extends AbstractTest
         self::assertEquals('Измененный курс', $courseAfter->getTitle());
         self::assertEquals('Этот курс изменен', $courseAfter->getInfo());
     }
+
 }

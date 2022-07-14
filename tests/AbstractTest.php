@@ -11,6 +11,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Response;
+use App\Service\BillingClient;
+use App\Tests\Mock\BillingClientMock;
 
 abstract class AbstractTest extends WebTestCase
 {

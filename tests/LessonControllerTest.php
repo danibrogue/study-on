@@ -2,6 +2,8 @@
 
 namespace App\Tests;
 
+use App\Tests\Authorization\Auth;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Component\Panther\PantherTestCase;
 use App\DataFixtures\CourseFixtures;
 use App\Entity\Course;
@@ -10,13 +12,35 @@ use App\Tests\AbstractTest;
 
 class LessonControllerTest extends AbstractTest
 {
+    /** @var SerializerInterface */
+    private $serializer;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->serializer = self::$container->get(SerializerInterface::class);
+    }
+
     protected function getFixtures(): array
     {
         return [CourseFixtures::class];
     }
-    
+
+    private function adminUser()
+    {
+        $auth = new Auth();
+        $auth->setSerializer($this->serializer);
+        $data = [
+            'username' => 'admin@test.local',
+            'password' => '12345678'
+        ];
+        $requestData = $this->serializer->serialize($data, 'json');
+        return $auth->testAuth($requestData);
+    }
+
     public function testResponsePages(): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $lessonRepository = self::getEntityManager()->getRepository(Lesson::class);
         $lessons = $lessonRepository->FindAll();
@@ -30,13 +54,30 @@ class LessonControllerTest extends AbstractTest
 
             $client->request('POST', '/lesson/' . $lesson->getId() . '/edit');
             $this->assertResponseOk();
+        }
+    }
 
+    public function testHiddenPages(): void
+    {
+        $client = self::getClient();
+        $lessonRepository = self::getEntityManager()->getRepository(Lesson::class);
+        $lessons = $lessonRepository->FindAll();
+
+        foreach ($lessons as $lesson) {
+            $client->request('GET', '/lesson/' . $lesson->getId());
+            $this->assertResponseOk();
+
+            $client->request('GET', '/lesson/' . $lesson->getId() . '/edit');
+            $this->assertResponseCode(403);
+
+            $client->request('POST', '/lesson/' . $lesson->getId() . '/edit');
+            $this->assertResponseCode(403);
         }
     }
 
     public function testCreateLesson(): void
     {
-
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -71,6 +112,7 @@ class LessonControllerTest extends AbstractTest
 
     public function testCreateLessonWithBlanks(): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -109,6 +151,7 @@ class LessonControllerTest extends AbstractTest
 
     public function testCreateLessonWithInvalids(): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -148,6 +191,7 @@ class LessonControllerTest extends AbstractTest
 
     public function testDeleteLesson(): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -180,6 +224,7 @@ class LessonControllerTest extends AbstractTest
 
     public function testEditLesson(): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -221,6 +266,7 @@ class LessonControllerTest extends AbstractTest
 
     public function testDeleteOrphanedLessons(): void
     {
+        $crawler = $this->adminUser();
         $client = self::getClient();
         $crawler = $client->request('GET', '/');
         $this->assertResponseOk();
@@ -242,4 +288,5 @@ class LessonControllerTest extends AbstractTest
             ->FindBy(['course' => $course]);
         self::assertEmpty($orphanedLessons);
     }
+
 }
