@@ -33,6 +33,11 @@ class UserDTO
      */
     private $token;
 
+    /**
+     * @Serializer\Type("string")
+     */
+    private $refresh_token;
+
 
     public function getUsername(): ?string
     {
@@ -87,5 +92,15 @@ class UserDTO
     public function setToken(?string $token): void
     {
         $this->token = $token;
+    }
+
+    public function getrefreshToken(): ?string
+    {
+        return $this->refresh_token;
+    }
+
+    public function setrefreshToken(?string $refresh_token): void
+    {
+        $this->refresh_token = $refresh_token;
     }
 }

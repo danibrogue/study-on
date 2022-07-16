@@ -14,6 +14,7 @@ class DTOConvertor
         $decodedToken = $this->JWTDecode($userDTO->getToken());
         $user->setRoles($decodedToken['roles']);
         $user->setEmail($decodedToken['email']);
+        $user->setRefreshToken($userDTO->getrefreshToken());
 
         return $user;
     }
