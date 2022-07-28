@@ -8,6 +8,8 @@ use App\Form\CourseType;
 use App\Form\LessonType;
 use App\Repository\CourseRepository;
 use App\Repository\LessonRepository;
+use App\Service\BillingCourses;
+use App\Service\BillingTransactions;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,13 +21,71 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CourseController extends AbstractController
 {
+    private const OPERATION_TYPE = [
+        'deposit' => 1,
+        'payment' => 2
+    ];
+
+    private function createKeyArray($arr, $key)
+    {
+        foreach ($arr as $var) {
+            $arrOut[$var[$key]] = $var;
+        }
+        return $arrOut;
+    }
     /**
      * @Route("/", name="app_course_index", methods={"GET"})
      */
-    public function index(CourseRepository $courseRepository): Response
-    {
+    public function index(
+        CourseRepository $courseRepository,
+        BillingCourses $billingCourses,
+        BillingTransactions $billingTransactions
+    ): Response {
+        if (!$this->getUser()) {
+            $courses = $courseRepository->findAll();
+            return $this->render('course/index.html.twig', [
+                'data' => $courses
+            ]);
+        }
+        $billingCourses = $billingCourses->findCourses();
+        foreach ($billingCourses as $course) {
+            $data = $courseRepository->findOneBy(['code' => $course['code']]);
+            if ($data !== null) {
+                $courseData[] = array_merge([
+                    'id' => $data->getId(),
+                    'title' => $data->getTitle(),
+                    'info' => $data->getInfo()
+                ], $course);
+            }
+        }
+        $transactions = $billingTransactions->getTransactions(
+            [
+                'filters' => [
+                    'type' => self::OPERATION_TYPE['payment'],
+                    'skip_expired' => true
+                ]
+            ],
+            $this->getUser()->getApiToken()
+        );
+        $keyCourses = $this->createKeyArray($courseData, 'code');
+        $keyTransactions = $this->createKeyArray($transactions, 'course_code');
+        foreach (array_keys($keyCourses) as $key) {
+            if (isset($keyTransactions[$key])) {
+                $billingData[] = array_merge(
+                    $keyCourses[$key],
+                    ['created_at' => $keyTransactions[$key]['created_at']],
+                    ['expires_at' => $keyTransactions[$key]['expires_at'] ?? null],
+                    ['purchased' => true]
+                );
+            } else {
+                $billingData[] = array_merge(
+                    $keyCourses[$key],
+                    ['purchased' => false]
+                );
+            }
+        }
         return $this->render('course/index.html.twig', [
-            'courses' => $courseRepository->findAll(),
+            'data' => $billingData
         ]);
     }
 

@@ -6,11 +6,35 @@
     <div class="d-flex flex-column mx-3">
         <h3>Список курсов</h3>
         <div class="row row-cols-2">
-            {% for course in courses %}
+            {% for course in data %}
                 <div class="col my-3 course_list_node">
                     <div class="p-3 h-100 border border-secondary rounded bg-light">
-                        <a href="{{ path('app_course_show', {'id': course.id}) }}" class="course-link"> {{ course.title }} </a>
+                        <h3>{{ course.title }} </h3>
                         <p> {{ course.info }} </p>
+                        {% if app.user != null %}
+                            {% if course.type == 'free' %}
+                                <h5>Бесплатный</h5>
+                                <a href="{{ path('app_course_show', {'id': course.id}) }}" class="btn btn-outline-primary course_link"> Перейти</a>
+                            {% endif %}
+
+                            {% if course.type == 'rent' %}
+                                {% if course.purchased == false %}
+                                    <a class="btn btn-outline-success payment">{{ course.price }}₽/мес.</a>
+                                {% else %}
+                                    <h5>Арендован до {{ course.expires_at|date("d.m.Y") }}</h5>
+                                    <a href="{{ path('app_course_show', {'id': course.id}) }}" class="btn btn-outline-primary course_link"> Перейти</a>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if course.type == 'full' %}
+                                {% if course.purchased == false %}
+                                    <a class="btn btn-outline-success payment">{{ course.price }}</a>
+                                {% else %}
+                                    <h5>Куплено</h5>
+                                    <a href="{{ path('app_course_show', {'id': course.id}) }}" class="btn btn-outline-primary course_link"> Перейти</a>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
                     </div>
                 </div>
             {% else %}

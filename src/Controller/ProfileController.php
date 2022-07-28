@@ -34,7 +34,6 @@ class ProfileController extends AbstractController
             return $this->redirectToRoute('app_course_index');
         }
         try {
-
             $userDTO = $this->billingClient->getCurrentUser($this->getUser());
         } catch (BillingUnavailableException $e) {
             throw new \Exception($e->getMessage());

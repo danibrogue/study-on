@@ -95,6 +95,43 @@ class CourseFixtures extends Fixture
 
         $manager->persist($discreteStructuresCourse);
 
+        //курс с забытым названием
+        $MRSCCourse = new Course();
+        $MRSCCourse->setCode('MRSC');
+        $MRSCCourse->setTitle('Рабочее название');
+        $MRSCCourse->setInfo(
+            "Здесь будет описание"
+        );
+
+        // Урок 1
+        $lesson = new Lesson();
+        $lesson->setTitle('Рабочее название');
+        $lesson->setContents(
+            "Здесь будет информация"
+        );
+        $lesson->setNumber(1);
+        $MRSCCourse->addInclude($lesson);
+
+        // Урок 2
+        $lesson = new Lesson();
+        $lesson->setTitle('Рабочее название');
+        $lesson->setContents(
+            "Здесь будет информация"
+        );
+        $lesson->setNumber(2);
+        $MRSCCourse->addInclude($lesson);
+
+        // Урок 3
+        $lesson = new Lesson();
+        $lesson->setTitle('Рабочее название');
+        $lesson->setContents(
+            "Здесь будет информация"
+        );
+        $lesson->setNumber(3);
+        $MRSCCourse->addInclude($lesson);
+
+        $manager->persist($MRSCCourse);
+
         // Курс по структурам данных
         $dataStructuresCourse = new Course();
         $dataStructuresCourse->setCode('DTSR');
