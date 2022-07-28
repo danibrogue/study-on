@@ -14,6 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -113,8 +114,33 @@ class CourseController extends AbstractController
     /**
      * @Route("/courses/{id}", name="app_course_show", methods={"GET"})
      */
-    public function show(Course $course): Response
-    {
+    public function show(
+        Course $course,
+        BillingTransactions $billingTransactions,
+        BillingCourses $billingCourses
+    ): Response {
+        if (!$this->getUser()) {
+            throw new AccessDeniedHttpException();
+        }
+        $billingCourses = $billingCourses->findCourses();
+        $keyCourses = $this->createKeyArray($billingCourses, 'code');
+        if ($keyCourses[$course->getCode()]['type'] !== 'free') {
+            $transactions = $billingTransactions->getTransactions(
+                [
+                    'filters' => [
+                        'type' => self::OPERATION_TYPE['payment'],
+                        'course_code' => $course->getCode(),
+                        'skip_expired' => true
+                    ]
+                ],
+                $this->getUser()->getApiToken()
+            );
+
+            if (!$transactions) {
+                throw new AccessDeniedHttpException();
+            }
+        }
+
         return $this->render('course/show.html.twig', [
             'course' => $course,
         ]);
